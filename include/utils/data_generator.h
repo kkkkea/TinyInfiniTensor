@@ -1,5 +1,7 @@
 #pragma once
 #include "core/common.h"
+#include "core/data_type.h"
+#include <iostream>
 #include <random>
 
 namespace infini {

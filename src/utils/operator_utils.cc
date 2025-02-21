@@ -1,5 +1,7 @@
 #include "utils/operator_utils.h"
+#include "core/common.h"
 #include "core/runtime.h"
+#include "core/tensor.h"
 
 namespace infini {
 
@@ -9,8 +11,20 @@ Shape infer_broadcast(const Shape &A, const Shape &B) {
     // TODO：对 A 和 B 进行双向广播，返回广播后的形状。
     // REF: https://github.com/onnx/onnx/blob/main/docs/Broadcasting.md
     // =================================== 作业 ===================================
+    Shape shape = A.size() < B.size() ? B : A;
+    int minRank = std::min(A.size(), B.size());
+    int offsetA = shape.size() - B.size();
+    int offsetB = shape.size() - A.size();
+    int offsetShape = shape.size() - minRank;
     
-    return {};
+    for (int i = 0; i < minRank; i++) {
+        if (A[i + offsetA] != B[i + offsetB]) {
+            IT_ASSERT(A[i + offsetA] == 1 || B[i + offsetB] == 1, "ength of each dimensions is either a common length or 1");
+            shape[i + offsetShape] = std::max(A[i + offsetA], B[i + offsetB]);
+        }
+    }
+
+    return shape;
 }
 
 int get_real_axis(const int &axis, const int &rank) {

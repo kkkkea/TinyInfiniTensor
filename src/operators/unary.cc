@@ -1,4 +1,9 @@
 #include "operators/unary.h"
+#include "core/data_type.h"
+#include "core/runtime.h"
+#include "core/tensor.h"
+#include <optional>
+#include <vector>
 
 namespace infini
 {
@@ -39,7 +44,15 @@ namespace infini
         // TODO：返回经过 clip 操作后的 shape
         // REF: https://onnx.ai/onnx/operators/onnx__Clip.html#clip-13
         // =================================== 作业 ===================================
-        return std::nullopt;
+        if (inputs.size() == 0) {
+            return std::nullopt;
+        }
+        
+        vector<Shape> shapes;
+        for (const auto &tensor : inputs) {
+            shapes.push_back(tensor->getDims());
+        }
+        return std::make_optional(shapes);
     }
 
     std::string ClipObj::toString() const
@@ -66,7 +79,7 @@ namespace infini
         // REF_FILE: src/core/operator.cc
         // REF: https://onnx.ai/onnx/operators/onnx__Cast.html#cast-21
         // =================================== 作业 ===================================
-        return {};
+        return vector<DataType>(inputs.size(), getOutputDataType());
     }
 
     optional<vector<Shape>> CastObj::inferShape(const TensorVec &inputs)
@@ -75,7 +88,15 @@ namespace infini
         // TODO：返回经过 cast 操作后的 shape
         // REF: https://onnx.ai/onnx/operators/onnx__Cast.html#cast-21
         // =================================== 作业 ===================================
-        return std::nullopt;
+        if (inputs.empty()) {
+            return std::nullopt;
+        }
+        
+        vector<Shape> shapes;
+        for (const auto &tensor : inputs) {
+            shapes.push_back(tensor->getDims());
+        }
+        return std::make_optional(shapes);
     }
 
     std::string CastObj::toString() const
